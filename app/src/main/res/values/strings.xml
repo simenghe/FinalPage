@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="btnLeft">◄</string>
+    <string name="btnRight">►</string>
+    <string name="btnStop">■</string>
+    <string name="btnUp">▲</string>
+    <string name="btnDown">▼</string>
+    <string name="txtIP">Insert IP</string>
+    <string name="btnIP">Submit IP</string>
+    <string name="viewIP">Your IP</string>
+    <string name="txtURL">Web return</string>
+    <string name="imgBox">TODO</string>
+    <string name="btnActivity2">Settings</string>
+</resources>
