@@ -1,7 +1,6 @@
 package com.example.simen.myapplication;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.jmedeisis.bugstick.Joystick;
+import com.jmedeisis.bugstick.JoystickListener;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,10 +21,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
     private TextView txtURL;
     private TextView urlText;
+    public static float offSet;
+    public static float degRee;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +44,35 @@ public class MainActivity extends AppCompatActivity {
         Button btnStop = (Button) findViewById(R.id.btnStop);
         Button btnIP=(Button)findViewById(R.id.btnIP);
         Button btnActivity2=(Button)findViewById(R.id.btnActivity2);
+        //Create the joystick using bugstick library.
+        Joystick joyStick=(Joystick)findViewById(R.id.buggoStick);
         //Show the IP that the user entered.
-        TextView viewIP=(TextView)findViewById(R.id.viewIP);
+        final TextView viewIP=(TextView)findViewById(R.id.viewIP);
+        joyStick.setJoystickListener(new JoystickListener() {
+            @Override
+            public void onDown() {
+
+            }
+
+            @Override
+            public void onDrag(float degrees, float offset) {
+                System.out.println(offSet + " " + offset*100);
+                if (offSet == offset && degRee == degrees)return;
+
+                String nutAddress="http://10.145.152.80:1234/forward/"+offset*100+"/";
+                new JSONTask().execute(nutAddress);
+                DecimalFormat df=new DecimalFormat("#.00");
+                String infos="Degrees: "+df.format(degrees)+"\nOffset: "+df.format(offset);
+                viewIP.setText(infos);
+
+
+            }
+
+            @Override
+            public void onUp() {
+                viewIP.setText("Degrees: 0\nOffset: 0");
+            }
+        });
         btnActivity2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch ( motionEvent.getAction() ) {
                     case MotionEvent.ACTION_DOWN:
-                        //new JSONTask().execute("http://10.145.144.153:1234/left");
+                        new JSONTask().execute("http://10.145.152.80:1234/forward");
                         break;
                     case MotionEvent.ACTION_UP:
-                        //new JSONTask().execute("http://10.145.144.153:1234/left");
+                        new JSONTask().execute("http://10.145.152.80:1234/forward");
                         break;
                 }
                 return true;
@@ -94,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
                 switch ( motionEvent.getAction() ) {
 
                     case MotionEvent.ACTION_DOWN:
-                        new JSONTask().execute("http://192.168.0.107:5000/left");
+                        new JSONTask().execute("http://10.145.145.140:5000/forward");
                         //notification.setText("Arrow up is HELD DOWN");
                         break;
                     case MotionEvent.ACTION_UP:
-                        new JSONTask().execute("http://192.168.0.107:5000/stop");
+                        new JSONTask().execute("http://10.145.145.140:5000/forward");
                         //notification.setText("Arrow up is RELEASED.");
                         break;
                 }
@@ -146,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             } finally {
                 if (connection != null) {
-                    connection.disconnect();    
+                    connection.disconnect();
                 }
                 try {
                     if (reader != null) {
